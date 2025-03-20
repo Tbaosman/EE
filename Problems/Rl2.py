@@ -1,6 +1,43 @@
+"""
+RL Circuit Analysis Tool
+=======================
+
+This module provides functions to analyze and visualize the behavior of a series RL circuit.
+The tool calculates various electrical parameters and offers multiple visualization options
+to help understand the circuit's response under different conditions.
+
+Features:
+---------
+- Calculate voltage across resistor and inductor components
+- Determine circuit impedance, current, and phase angle
+- Generate multiple visualizations:
+  * Frequency response plots
+  * Time domain waveforms
+  * Phasor diagrams
+  * Bode plots
+  * Impedance and voltage division analysis
+Usage:
+------
+Run the module directly to use the interactive command-line interface:
+    python rl_circuit_calculator.py
+
+Or import the functions to use in your own code:
+    from rl_circuit_calculator import calculate_resistor_voltage
+
+Dependencies:
+------------
+- numpy
+- matplotlib
+
+Author: Mohamed Saeed
+-------
+Created on February 28, 2025
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from math import pi
+
 
 def calculate_resistor_voltage(supply_voltage, resistance, inductance, frequency):
     """
@@ -13,8 +50,15 @@ def calculate_resistor_voltage(supply_voltage, resistance, inductance, frequency
     frequency (float): The frequency in Hertz
     
     Returns:
-    float: The voltage across the resistor in Volts
+    tuple: (resistor_voltage, inductor_voltage, current, phase_angle)
+        - resistor_voltage (float): The voltage across the resistor in Volts
+        - inductor_voltage (float): The voltage across the inductor in Volts
+        - current (float): The current through the circuit in Amperes
+        - phase_angle (float): The phase angle between voltage and current in radians
     """
+    
+    
+    
     # Calculate angular frequency
     omega = 2 * pi * frequency
     
@@ -33,24 +77,33 @@ def calculate_resistor_voltage(supply_voltage, resistance, inductance, frequency
     # Calculate the voltage across the resistor
     resistor_voltage = current * resistance
     
-    return resistor_voltage, phase_angle
+    # Calculate the voltage across the inductor
+    inductor_voltage = current * inductive_reactance
+    
+    return resistor_voltage, inductor_voltage, current, phase_angle
 
 def main():
-    print("Series RL Circuit Calculator")
+    print("***Series RL Circuit Calculator***")
+    print("This a program that will help you to analyze and visualize the behaviour of an RL circuit")
     print("===========================")
     
     # Get user inputs
+    
     supply_voltage = float(input("Enter the supply voltage (V): "))
     resistance = float(input("Enter the resistance (Ω): "))
     inductance = float(input("Enter the inductance (H): "))
     frequency = float(input("Enter the frequency (Hz): "))
     
     # Calculate the voltage across the resistor
-    resistor_voltage, phase_angle = calculate_resistor_voltage(supply_voltage, resistance, inductance, frequency)
+    resistor_voltage, inductor_voltage, current, phase_angle = calculate_resistor_voltage(
+        supply_voltage, resistance, inductance, frequency)
+    
+    print("==================================")
     
     # Display the results
     print("\nResults:")
     print(f"Voltage across the resistor: {resistor_voltage:.2f} V")
+    print(f"Voltage across the inductor: {inductor_voltage:.2f} V")
     print(f"Current phase angle: {phase_angle * 180/pi:.2f} degrees")
     
     # Calculate impedance
@@ -58,9 +111,12 @@ def main():
     inductive_reactance = omega * inductance
     total_impedance = np.sqrt(resistance**2 + inductive_reactance**2)
     print(f"Total circuit impedance: {total_impedance:.2f} Ω")
-    print(f"Current through the circuit: {supply_voltage/total_impedance:.4f} A")
+    print(f"Current through the circuit: {current:.4f} A")
+    print("\n")
+    print("=============================")
+    print("=============================")
     
-# Visualization options
+    # Visualization options
     print("\nVisualization Options:")
     print("1. Resistor voltage vs. frequency")
     print("2. Phase angle vs. frequency")
@@ -94,6 +150,15 @@ def main():
             print("Invalid option. Please try again.")
 
 def plot_frequency_response(supply_voltage, resistance, inductance, component_type):
+    """
+    Plot voltage across circuit component versus frequency.
+    
+    Parameters:
+    supply_voltage (float): The voltage of the power supply in Volts
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    component_type (str): Either "resistor" or "inductor"
+    """
     frequencies = np.logspace(0, 5, 1000)  # from 1 Hz to 100 kHz
     resistor_voltages = []
     inductor_voltages = []
@@ -118,6 +183,13 @@ def plot_frequency_response(supply_voltage, resistance, inductance, component_ty
     plt.show()
 
 def plot_phase_response(resistance, inductance):
+    """
+    Plot phase angle versus frequency.
+    
+    Parameters:
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    """
     frequencies = np.logspace(0, 5, 1000)  # from 1 Hz to 100 kHz
     phases = []
     
@@ -136,6 +208,13 @@ def plot_phase_response(resistance, inductance):
     plt.show()
 
 def plot_impedance_response(resistance, inductance):
+    """
+    Plot impedance components versus frequency.
+    
+    Parameters:
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    """
     frequencies = np.logspace(0, 5, 1000)  # from 1 Hz to 100 kHz
     impedances = []
     r_components = []
@@ -161,6 +240,14 @@ def plot_impedance_response(resistance, inductance):
     plt.show()
 
 def plot_voltage_division(supply_voltage, resistance, inductance):
+    """
+    Plot voltage division ratios versus frequency.
+    
+    Parameters:
+    supply_voltage (float): The voltage of the power supply in Volts
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    """
     frequencies = np.logspace(0, 5, 1000)  # from 1 Hz to 100 kHz
     vr_ratio = []
     vl_ratio = []
@@ -181,6 +268,15 @@ def plot_voltage_division(supply_voltage, resistance, inductance):
     plt.show()
 
 def plot_time_domain(supply_voltage, resistance, inductance, frequency):
+    """
+    Plot time domain waveforms for one cycle.
+    
+    Parameters:
+    supply_voltage (float): The voltage of the power supply in Volts
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    frequency (float): The frequency in Hertz
+    """
     omega = 2 * pi * frequency
     inductive_reactance = omega * inductance
     impedance = np.sqrt(resistance**2 + inductive_reactance**2)
@@ -221,6 +317,15 @@ def plot_time_domain(supply_voltage, resistance, inductance, frequency):
     plt.show()
 
 def plot_phasor_diagram(supply_voltage, resistance, inductance, frequency):
+    """
+    Plot phasor diagram showing voltage and current relationships.
+    
+    Parameters:
+    supply_voltage (float): The voltage of the power supply in Volts
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    frequency (float): The frequency in Hertz
+    """
     omega = 2 * pi * frequency
     inductive_reactance = omega * inductance
     impedance = np.sqrt(resistance**2 + inductive_reactance**2)
@@ -237,19 +342,19 @@ def plot_phasor_diagram(supply_voltage, resistance, inductance, frequency):
     # Plot phasors
     # Current at 0 degrees (reference)
     ax.arrow(0, 0, 0, current_amplitude, alpha=0.5, width=0.02, 
-            edgecolor='blue', facecolor='blue', lw=2, zorder=5)
+             edgecolor='blue', facecolor='blue', lw=2, zorder=5)
     
     # Supply voltage
     ax.arrow(0, 0, phase_angle, supply_voltage, alpha=0.5, width=0.02,
-            edgecolor='black', facecolor='black', lw=2, zorder=5)
+             edgecolor='black', facecolor='black', lw=2, zorder=5)
     
     # Resistor voltage (in phase with current)
     ax.arrow(0, 0, 0, resistor_voltage, alpha=0.5, width=0.02,
-            edgecolor='red', facecolor='red', lw=2, zorder=5)
+             edgecolor='red', facecolor='red', lw=2, zorder=5)
     
     # Inductor voltage (90 degrees ahead of current)
     ax.arrow(0, 0, pi/2, inductor_voltage, alpha=0.5, width=0.02,
-            edgecolor='green', facecolor='green', lw=2, zorder=5)
+             edgecolor='green', facecolor='green', lw=2, zorder=5)
     
     # Add labels
     ax.text(0, current_amplitude/2, "Current", color='blue', ha='right', va='bottom')
@@ -261,6 +366,13 @@ def plot_phasor_diagram(supply_voltage, resistance, inductance, frequency):
     plt.show()
 
 def plot_bode(resistance, inductance):
+    """
+    Plot Bode diagram (magnitude and phase).
+    
+    Parameters:
+    resistance (float): The resistance in Ohms
+    inductance (float): The inductance in Henries
+    """
     frequencies = np.logspace(0, 5, 1000)  # from 1 Hz to 100 kHz
     magnitude_r = []
     magnitude_l = []
